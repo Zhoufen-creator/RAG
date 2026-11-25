@@ -1,4 +1,7 @@
+from src.generate import generate_answer
 from src.retrieval import load_index, retrieval
+
+TOP_k = 3
 
 def main():
     vectors, chunks = load_index()

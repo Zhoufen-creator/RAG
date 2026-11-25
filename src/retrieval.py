@@ -12,7 +12,7 @@ def load_index():
         raise ValueError(
            f"Index đang được tạo bằng {meta['model']} nhưng đang dùng {MODEL_NAME}"
         )
-    return vectors, meta["chunks"]
+    return vectors, meta["chunk"]
 
 def retrieval(query, vectors, chunks, top_k=5):
     query_vec = embed_texts([query])[0]
