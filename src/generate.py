@@ -1,13 +1,12 @@
-from torchgen.utils import context
-from email import message
 import os
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
-GROQ_MODEL="openai/gpt-oss-20b"
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "openai/gpt-oss-20b"
 
-def build_promt(query, chunks):
+def build_prompt(query, chunks):
     context = "\n\n".join(
         f"[{i}] {c['text']}" for i, c in enumerate(chunks, start=1)
     )
@@ -23,19 +22,28 @@ def build_promt(query, chunks):
         "TRẢ LỜI:"
     )
 
-def call_GPT(promt):
+def call_GPT(prompt):
+    api_key = os.getenv("GROQ_API_KEY")
+
     resp = requests.post(
-        "http://localhost:11434/api/chat",
+        GROQ_URL,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
         json={
-            "model" : GROQ_MODEL,
-            "message" : [{"role" : "user", "content" : promt}],
-            "stream" : False
+            "model": GROQ_MODEL,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0,
+            "max_tokens": 2000,
+            "reasoning_effort": "low",
         },
         timeout=300,
     )
     resp.raise_for_status()
-    return resp.json()["message"]["content"]
+    content = resp.json()["choices"][0]["message"].get("content")
+    return content or "(model không trả về nội dung)"
 
 def generate_answer(query, chunks):
-    promt = build_promt(query, chunks)
-    return call_GPT(promt)
+    prompt = build_prompt(query, chunks)
+    return call_GPT(prompt)
