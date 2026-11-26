@@ -1,4 +1,5 @@
 .venv/
 .env
-data/
+data/raw/
+data/index/
 src/__pycache__
